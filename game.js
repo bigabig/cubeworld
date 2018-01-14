@@ -11,13 +11,32 @@ function main() {
     camera = new Camera(10);
     console.log(radToDeg(vec3.angle(camera.target, camera.eye)));
 
-    gl.uniform3fv(programInfo.uniformLocations.uLightPosition, [-7.0, 3.0, -7.0, 7.0, 3.0, 7.0]);
-    gl.uniform4fv(programInfo.uniformLocations.uIa, [0.3, 0.3, 0.3, 1.0]);
-    gl.uniform4fv(programInfo.uniformLocations.uId, [0.5, 0.5, 0.5, 1.0]);
-    gl.uniform4fv(programInfo.uniformLocations.uIs, [0.7, 0.7, 0.7, 1.0]);
+    var redLight = new Light();
+    redLight.setPosition({x: 0, y: 5, z: 0});
+    redLight.setDiffuse({r: 1, g: .2, b: 0.2, a: 1.0});
+    redLight.setSpecular({r: 1.0, g: 1.0, b: 1.0, a: 1.0});
+
+    var blueLight = new Light();
+    blueLight.setPosition({x: -7, y: 5, z: 7});
+    blueLight.setDiffuse({r: .2, g: .2, b: 1, a: 1.0});
+    blueLight.setSpecular({r: 1.0, g: 1.0, b: 1.0, a: 1.0});
+
+    var greenLight = new Light();
+    greenLight.setPosition({x: 7, y: 5, z: -7});
+    greenLight.setDiffuse({r: .2, g: 1, b: .2, a: 1.0});
+    greenLight.setSpecular({r: 1.0, g: 1.0, b: 1.0, a: 1.0});
+
+    var lighting = new Lighting();
+    lighting.setAmbient({r: .5, g: .5, b: .5, a: 1.0});
+    lighting.setSpecularExponent(4);
+
+    lighting.addLight(redLight);
+    lighting.addLight(blueLight);
+    lighting.addLight(greenLight);
+    lighting.Update();
 
     var cube = new Cube();
-    cube.SetPositionAndOrientation({x: 0, y: 7, z: 0});
+    cube.SetPositionAndOrientation({x: 0, y: 10, z: 0});
     objects.push(cube);
 
     for(let y = -10; y <= 10; y = y+2 ) {

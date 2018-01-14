@@ -18,7 +18,7 @@
         varying vec4 vPosition;
         varying vec4 vNormal;
 
-        const int NUM_LIGHTS = 2;
+        const int NUM_LIGHTS = 3;
         uniform vec3 uLightPosition[NUM_LIGHTS];
         varying vec4 vLightPos[NUM_LIGHTS];
 
@@ -47,14 +47,14 @@
         varying vec4 vPosition;
         varying vec4 vNormal;
 
-        const int NUM_LIGHTS = 2;
+        const int NUM_LIGHTS = 3;
         varying vec4 vLightPos[NUM_LIGHTS];
 
 
         uniform sampler2D uSampler;
         uniform vec4 uIa;
-        uniform vec4 uId;
-        uniform vec4 uIs;
+        uniform vec4 uId[NUM_LIGHTS];
+        uniform vec4 uIs[NUM_LIGHTS];
         uniform vec4 uKa;
         uniform vec4 uKd;
         uniform vec4 uKs;
@@ -77,7 +77,7 @@
                 float d = distance(vLightPos[i], vPosition);
                 float fAtt = min(1.0/c1 + c2 * d + c3 * pow(d, 2.0), 1.0);
 
-                finalColor += fAtt * (uId * texture2D(uSampler, vTextureCoord) * max(dot(N, L), 0.0) + uIs * uKs * pow(max(dot(R, V), 0.0), uSpecularExponent));
+                finalColor += fAtt * (uId[i] * texture2D(uSampler, vTextureCoord) * max(dot(N, L), 0.0) + uIs[i] * uKs * pow(max(dot(R, V), 0.0), uSpecularExponent));
             }
 
             gl_FragColor =  uIa * uKa + finalColor;
@@ -97,6 +97,7 @@
 <script type="text/javascript" src="helper.js"></script>
 <script type="text/javascript" src="camera.js"></script>
 <script type="text/javascript" src="cube.js"></script>
+<script type="text/javascript" src="light.js"></script>
 <script type="text/javascript" src="game.js"></script>
 <script type="text/javascript" src="input.js"></script>
 

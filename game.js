@@ -14,17 +14,17 @@ function main() {
     var redLight = new Light();
     redLight.setPosition({x: 0, y: 5, z: 0});
     redLight.setDiffuse({r: 1, g: .2, b: 0.2, a: 1.0});
-    redLight.setSpecular({r: 1.0, g: 1.0, b: 1.0, a: 1.0});
+    redLight.setSpecular({r: .5, g: .5, b: .5, a: 1.0});
 
     var blueLight = new Light();
     blueLight.setPosition({x: -7, y: 5, z: 7});
     blueLight.setDiffuse({r: .2, g: .2, b: 1, a: 1.0});
-    blueLight.setSpecular({r: 1.0, g: 1.0, b: 1.0, a: 1.0});
+    blueLight.setSpecular({r: .5, g: .5, b: .5, a: 1.0});
 
     var greenLight = new Light();
     greenLight.setPosition({x: 7, y: 5, z: -7});
     greenLight.setDiffuse({r: .2, g: 1, b: .2, a: 1.0});
-    greenLight.setSpecular({r: 1.0, g: 1.0, b: 1.0, a: 1.0});
+    greenLight.setSpecular({r: .5, g: .5, b: .5, a: 1.0});
 
     var lighting = new Lighting();
     lighting.setAmbient({r: .5, g: .5, b: .5, a: 1.0});

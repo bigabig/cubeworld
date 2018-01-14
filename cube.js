@@ -4,7 +4,7 @@ var programInfo;
 var camera;
 
 class Cube {
-    constructor(texture_side, texture_top, ka = {r: 0.3, g: 0.3, b: 0.3, a: 1.0}, kd = {r: 0.8, g: 0.8, b: 0.8, a: 1.0}, ks = {r: 1.0, g: 1.0, b: 1.0, a: 1.0}) {
+    constructor(texture_side, texture_top, ka = {r: 0.3, g: 0.3, b: 0.3, a: 1.0}, kd = {r: 0.8, g: 0.8, b: 0.8, a: 1.0}, ks = {r: .3, g: .3, b: .3, a: 1.0}) {
         this.positions;
         this.textures;
         this.normals;

@@ -25,10 +25,10 @@
         void main() {
             gl_Position = uProjectionMatrix * uViewMatrix * uModelMatrix* aVertexPosition;
             vPosition = uModelMatrix * uViewMatrix * aVertexPosition;
-            vNormal = uNormalMatrix * vec4(aNormal, 1.0);
+            vNormal = uNormalMatrix * vec4(aNormal, 0.0);
             vTextureCoord = aTextureCoord;
             for(int i=0; i < NUM_LIGHTS; i++){
-                vLightPos[i] = vec4(uLightPosition[i], 1);
+                vLightPos[i] = uViewMatrix * vec4(uLightPosition[i], 1);
             }
         }
     </script>
@@ -42,7 +42,6 @@
 
         const int NUM_LIGHTS = 3;
         varying vec4 vLightPos[NUM_LIGHTS];
-
 
         uniform sampler2D uSampler;
         uniform vec4 uIa;
@@ -64,7 +63,7 @@
 
 
             for(int i=0; i < NUM_LIGHTS; i++){
-                vec3 L = normalize((vLightPos[i] - vPosition).xyz);
+                vec3 L = normalize(-vLightPos[i].xyz);
                 vec3 R = reflect(-L, N);
 
                 float d = distance(vLightPos[i], vPosition);

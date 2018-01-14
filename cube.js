@@ -52,7 +52,7 @@ class Cube {
         mat4.multiply(modelViewMatrix, camera.viewMatrix, this.modelMatrix);
         this.normalMatrix = mat4.create();
 
-        mat4.invert(this.normalMatrix, this.modelMatrix);
+        mat4.invert(this.normalMatrix, modelViewMatrix);
         mat4.transpose(this.normalMatrix, this.normalMatrix);
 
         //mat4.transpose(this.normalMatrix, modelViewMatrix);

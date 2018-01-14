@@ -11,7 +11,7 @@ function main() {
     camera = new Camera(10);
     console.log(radToDeg(vec3.angle(camera.target, camera.eye)));
 
-    gl.uniform3fv(programInfo.uniformLocations.uLightPosition, [0.0, 6.0, 0.0]);
+    gl.uniform3fv(programInfo.uniformLocations.uLightPosition, [-7.0, 3.0, -7.0, 7.0, 3.0, 7.0]);
     gl.uniform4fv(programInfo.uniformLocations.uIa, [0.3, 0.3, 0.3, 1.0]);
     gl.uniform4fv(programInfo.uniformLocations.uId, [0.5, 0.5, 0.5, 1.0]);
     gl.uniform4fv(programInfo.uniformLocations.uIs, [0.7, 0.7, 0.7, 1.0]);

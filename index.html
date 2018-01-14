@@ -13,12 +13,14 @@
         uniform mat4 uViewMatrix;
         uniform mat4 uProjectionMatrix;
         uniform mat4 uNormalMatrix;
-        uniform vec3 uLightPosition;
 
         varying vec2 vTextureCoord;
         varying vec4 vPosition;
-        varying vec4 vLightPos;
         varying vec4 vNormal;
+
+        const int NUM_LIGHTS = 2;
+        uniform vec3 uLightPosition[NUM_LIGHTS];
+        varying vec4 vLightPos[NUM_LIGHTS];
 
         void main() {
 
@@ -26,7 +28,9 @@
 
             vNormal = uNormalMatrix * vec4(aNormal, 0.0);
             // vLightPos = uViewMatrix * vec4(uLightPosition, 1);
-            vLightPos = vec4(uLightPosition, 1);
+            for(int i=0; i < NUM_LIGHTS; i++){
+                vLightPos[i] = vec4(uLightPosition[i], 1);
+            }
             vPosition = uModelMatrix * aVertexPosition;
             //vPosition = modelViewMatrix * aVertexPosition;
             vTextureCoord = aTextureCoord;
@@ -41,8 +45,11 @@
 
         varying vec2 vTextureCoord;
         varying vec4 vPosition;
-        varying vec4 vLightPos;
         varying vec4 vNormal;
+
+        const int NUM_LIGHTS = 2;
+        varying vec4 vLightPos[NUM_LIGHTS];
+
 
         uniform sampler2D uSampler;
         uniform vec4 uIa;
@@ -58,16 +65,22 @@
         const float c3 = 0.000003;
 
         void main() {
-
+            vec4 finalColor = vec4(0.0,0.0,0.0,1.0);
             vec3 N = normalize(vNormal.xyz);
-            vec3 L = normalize((vLightPos - vPosition).xyz);
             vec3 V = normalize((-vPosition).xyz);
-            vec3 R = reflect(-L, N);
 
-            float d = distance(vLightPos, vPosition);
-            float fAtt = min(1.0/c1 + c2 * d + c3 * pow(d, 2.0), 1.0);
 
-            gl_FragColor =  uIa * uKa + fAtt * (uId * texture2D(uSampler, vTextureCoord) * max(dot(N, L), 0.0) + uIs * uKs * pow(max(dot(R, V), 0.0), uSpecularExponent));
+            for(int i=0; i < NUM_LIGHTS; i++){
+                vec3 L = normalize((vLightPos[i] - vPosition).xyz);
+                vec3 R = reflect(-L, N);
+
+                float d = distance(vLightPos[i], vPosition);
+                float fAtt = min(1.0/c1 + c2 * d + c3 * pow(d, 2.0), 1.0);
+
+                finalColor += fAtt * (uId * texture2D(uSampler, vTextureCoord) * max(dot(N, L), 0.0) + uIs * uKs * pow(max(dot(R, V), 0.0), uSpecularExponent));
+            }
+
+            gl_FragColor =  uIa * uKa + finalColor;
         }
     </script>
 

@@ -4,7 +4,7 @@ var programInfo;
 var camera;
 
 class Cube {
-    constructor(texture, ka = {r: 0.3, g: 0.3, b: 0.3, a: 1.0}, kd = {r: 0.8, g: 0.8, b: 0.0, a: 1.0}, ks = {r: 1.0, g: 1.0, b: 1.0, a: 1.0}) {
+    constructor(texture_side, texture_top, ka = {r: 0.3, g: 0.3, b: 0.3, a: 1.0}, kd = {r: 0.8, g: 0.8, b: 0.8, a: 1.0}, ks = {r: 1.0, g: 1.0, b: 1.0, a: 1.0}) {
         this.positions;
         this.textures;
         this.normals;
@@ -13,7 +13,8 @@ class Cube {
         this.position = {x: 0, y: 0, z: 0};
         this.orientation = {x: 0, y: 0, z: 0};
 
-        this.texture = loadTexture(texture);
+        this.texture_side = loadTexture(texture_side);
+        this.texture_top = loadTexture(texture_top);
 
         this.ka = ka;
         this.kd = kd;
@@ -74,16 +75,16 @@ class Cube {
             -1.0,  1.0,  1.0,
 
             // Back face
+            1.0, -1.0, -1.0,
             -1.0, -1.0, -1.0,
             -1.0,  1.0, -1.0,
             1.0,  1.0, -1.0,
-            1.0, -1.0, -1.0,
 
             // Top face
-            -1.0,  1.0, -1.0,
             -1.0,  1.0,  1.0,
             1.0,  1.0,  1.0,
             1.0,  1.0, -1.0,
+            -1.0,  1.0, -1.0,
 
             // Bottom face
             -1.0, -1.0, -1.0,
@@ -92,10 +93,10 @@ class Cube {
             -1.0, -1.0,  1.0,
 
             // Right face
+            1.0, -1.0,  1.0,
             1.0, -1.0, -1.0,
             1.0,  1.0, -1.0,
             1.0,  1.0,  1.0,
-            1.0, -1.0,  1.0,
 
             // Left face
             -1.0, -1.0, -1.0,
@@ -254,7 +255,7 @@ class Cube {
         // Tell WebGL we want to affect texture unit 0
         gl.activeTexture(gl.TEXTURE0);
         // Bind the texture to texture unit 0
-        gl.bindTexture(gl.TEXTURE_2D, this.texture);
+        gl.bindTexture(gl.TEXTURE_2D, this.texture_side);
         // Tell the shader we bound the texture to texture unit 0
         gl.uniform1i(programInfo.uniformLocations.uSampler, 0);
 
@@ -269,12 +270,25 @@ class Cube {
         gl.uniform4fv(programInfo.uniformLocations.uKs, Object.values(this.ks));
         gl.uniform1f(programInfo.uniformLocations.uSpecularExponent, this.specularExponent);
 
+        /*
         {
             const vertexCount = 36;
             const type = gl.UNSIGNED_SHORT;
             const offset = 0;
             gl.drawElements(gl.TRIANGLES, vertexCount, type, offset);
         }
+        */
+        gl.bindTexture(gl.TEXTURE_2D, this.texture_side);
+        gl.uniform1i(programInfo.uniformLocations.uSampler, 0);
+        gl.drawElements(gl.TRIANGLES, 12, gl.UNSIGNED_SHORT, 0);
+
+        gl.bindTexture(gl.TEXTURE_2D, this.texture_top);
+        gl.uniform1i(programInfo.uniformLocations.uSampler, 0);
+        gl.drawElements(gl.TRIANGLES, 12, gl.UNSIGNED_SHORT, 24);
+
+        gl.bindTexture(gl.TEXTURE_2D, this.texture_side);
+        gl.uniform1i(programInfo.uniformLocations.uSampler, 0);
+        gl.drawElements(gl.TRIANGLES, 12, gl.UNSIGNED_SHORT, 48);
     }
 
     Update(deltaTime) {

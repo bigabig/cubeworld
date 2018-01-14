@@ -41,22 +41,22 @@ function main() {
 
     for(let y = -10; y <= 10; y = y+2 ) {
         for(let x = -10; x <= 10; x = x + 2) {
-            var cube = new Cube("textures/grass_top.png");
+            var cube = new Cube("textures/grass_top.png", "textures/grass_top.png");
             cube.SetPositionAndOrientation({x: x, y: 0, z: y});
             objects.push(cube);
         }
     }
 
 
-    var cube = new Cube("textures/leaves_oak_opaque.png");
+    var cube = new Cube("textures/leaves_oak_opaque.png", "textures/grass_top.png");
     cube.SetPositionAndOrientation({x: 2, y: 2, z: 2});
     objects.push(cube);
 
-    var cube = new Cube("textures/log_spruce.png");
-    cube.SetPositionAndOrientation({x: 4, y: 2, z: 4});
+    var cube = new Cube("textures/log_spruce.png", "textures/log_spruce_top.png");
+    cube.SetPositionAndOrientation({x: 1, y: 3, z: 1}, {x: 45, y: 0, z: 0});
     objects.push(cube);
 
-    var cube = new Cube("textures/sand.png");
+    var cube = new Cube("textures/sand.png", "textures/grass_top.png");
     cube.SetPositionAndOrientation({x: -3, y: 2, z: -3});
     objects.push(cube);
 

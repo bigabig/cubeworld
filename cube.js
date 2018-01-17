@@ -4,7 +4,7 @@ var programInfo;
 var camera;
 
 class Cube {
-    constructor(texture_side, texture_top, ka = {r: 0.3, g: 0.3, b: 0.3, a: 1.0}, kd = {r: 0.8, g: 0.8, b: 0.8, a: 1.0}, ks = {r: .3, g: .3, b: .3, a: 1.0}) {
+    constructor(texture_side, texture_top, ka = {r: 0.3, g: 0.3, b: 0.3, a: 1.0}, kd = {r: 0.6, g: 0.6, b: 0.6, a: 1.0}, ks = {r: 1, g: 1, b: 1, a: 1.0}) {
         this.positions;
         this.textures;
         this.normals;
@@ -114,15 +114,15 @@ class Cube {
 
         const textureCoordinates = [
             // Front
-            0.0,  0.0,
-            1.0,  0.0,
-            1.0,  1.0,
             0.0,  1.0,
+            1.0,  1.0,
+            1.0,  0.0,
+            0.0,  0.0,
             // Back
-            0.0,  0.0,
-            1.0,  0.0,
-            1.0,  1.0,
             0.0,  1.0,
+            1.0,  1.0,
+            1.0,  0.0,
+            0.0,  0.0,
             // Top
             0.0,  0.0,
             1.0,  0.0,
@@ -134,15 +134,15 @@ class Cube {
             1.0,  1.0,
             0.0,  1.0,
             // Right
-            0.0,  0.0,
-            1.0,  0.0,
-            1.0,  1.0,
             0.0,  1.0,
+            1.0,  1.0,
+            1.0,  0.0,
+            0.0,  0.0,
             // Left
-            0.0,  0.0,
-            1.0,  0.0,
-            1.0,  1.0,
             0.0,  1.0,
+            1.0,  1.0,
+            1.0,  0.0,
+            0.0,  0.0,
         ];
 
         gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(textureCoordinates), gl.STATIC_DRAW);

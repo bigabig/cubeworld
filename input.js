@@ -7,8 +7,6 @@ function keyup(e) { keyPressed[e.code] = false; }
 
 function changeView(e)
 {
-    console.log(e.movementX);
-
     camera.yaw += e.movementX * 0.05;
     camera.pitch += -e.movementY * 0.05;
 

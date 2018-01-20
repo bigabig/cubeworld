@@ -13,8 +13,6 @@ class MyNoise {
         noise = Math.pow(noise, exp);
         noise = Math.round(noise);
 
-        console.log(noise);
-
         return noise;
     }
 
@@ -22,8 +20,6 @@ class MyNoise {
         let noise = (this.simplex.noise3D(x * freq, y * freq, z * freq) + 1) / 2;
         noise = noise * height;
         noise = Math.round(noise);
-
-        console.log(noise);
 
         return noise;
     }

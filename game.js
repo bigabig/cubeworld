@@ -4,18 +4,16 @@ var programInfo;
 var camera;
 
 let objects = [];
+let lighting;
 
 main();
 
 function main() {
-    camera = new Camera(10);
-    console.log(radToDeg(vec3.angle(camera.target, camera.eye)));
-
     var redLight = new Light();
-    redLight.setPosition({x: 0.0, y: 5.0, z: 0.0});
-    redLight.setDiffuse({r: 0.1, g: 0.1, b: 0.1, a: 1.0});
+    redLight.setPosition({x: 5, y: 15, z: 5});
+    redLight.setDiffuse({r: 0.7, g: 0.7, b: 0.7, a: 1.0});
     //redLight.setSpecular({r: 1, g: 1, b: 1, a: 1.0});
-    redLight.setSpecular({r: 1, g: 1, b: 1, a: 1.0});
+    redLight.setSpecular({r: 0.4, g: 0.4, b: 0.4, a: 1.0});
 
     var blueLight = new Light();
     blueLight.setPosition({x: -7, y: 5, z: 7});
@@ -27,29 +25,22 @@ function main() {
     greenLight.setDiffuse({r: .2, g: 1, b: .2, a: 1.0});
     greenLight.setSpecular({r: .5, g: .5, b: .5, a: 1.0});
 
-    var lighting = new Lighting();
-    lighting.setAmbient({r: .5, g: .5, b: .5, a: 1.0});
-    lighting.setSpecularExponent(128);
+    lighting = new Lighting();
+    lighting.setAmbient({r: .2, g: .2, b: .2, a: 1.0});
 
     lighting.addLight(redLight);
     //lighting.addLight(blueLight);
     //lighting.addLight(greenLight);
-    lighting.Update();
 
-    /*
-    for(let y = -10; y <= 10; y = y+2 ) {
-        for(let x = -10; x <= 10; x = x + 2) {
-            var cube = new Cube("textures/grass_top.png", "textures/grass_top.png");
-            cube.SetPositionAndOrientation({x: x, y: 0, z: y});
-            objects.push(cube);
-        }
-    }
-    */
+    lighting.Init();
+
+    camera = new Camera(10);
+
 
     var generator = new Generator(objects);
     //generator.GenerateTree({x:5, y: 2, z: 5}, 0);
     //generator.GenerateTree({x:-5, y: 2, z: -5}, 1);
-    generator.GenerateTerrain(50, 30, 50);
+    generator.GenerateTerrain(10, 30, 10);
     objects = generator.GetObjects();
 
     requestAnimationFrame(gameLoop);
@@ -70,11 +61,13 @@ function render() {
 }
 
 function update(deltaTime) {
-    camera.Update(deltaTime);
+    lighting.Update();
 
     objects.forEach(function(object) {
         object.Update(deltaTime);
     });
+
+    camera.Update(deltaTime);
 }
 
 var then = 0;

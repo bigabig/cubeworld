@@ -2,20 +2,22 @@ var gl;
 var programInfo;
 
 class Lighting {
-    constructor(ambient = {r: 0.45, g: 0.23, b: 0.8, a: 1.0}, specularExponent = 4) {
+    constructor(ambient = {r: 0.45, g: 0.23, b: 0.8, a: 1.0}) {
         this.lightings = [];
         this.ambient = ambient;
-        this.specularExponent = specularExponent;
+
+        this.positions;
+        this.diffuse;
+        this.specular;
     }
 
     setAmbient(ambient) { this.ambient = ambient; }
-    setSpecularExponent(exponent) { this.specularExponent = exponent; }
 
     addLight(light) {
         this.lightings.push(light);
     }
 
-    Update() {
+    Init() {
         let positions = [];
         let diffuse = [];
         let specular = [];
@@ -26,10 +28,16 @@ class Lighting {
             specular = specular.concat(light.getSpecular());
         });
 
-        gl.uniform3fv(programInfo.uniformLocations.uLightPosition, positions);
+        this.positions = positions;
+        this.diffuse = diffuse;
+        this.specular = specular;
+    }
+
+    Update() {
+        gl.uniform3fv(programInfo.uniformLocations.uLightPosition, this.positions);
         gl.uniform4fv(programInfo.uniformLocations.uIa, Object.values(this.ambient));
-        gl.uniform4fv(programInfo.uniformLocations.uId, diffuse);
-        gl.uniform4fv(programInfo.uniformLocations.uIs, specular);
+        gl.uniform4fv(programInfo.uniformLocations.uId, this.diffuse);
+        gl.uniform4fv(programInfo.uniformLocations.uIs, this.specular);
     }
 }
 

@@ -5,76 +5,116 @@ var keyPressed = {
     KeyW: false,
     KeyA: false,
     KeyS: false,
-    KeyD: false
+    KeyD: false,
+    ShiftLeft: false
 };
+
+var mouseMove = {
+    x: 0,
+    y: 0,
+};
+
+let upVector = vec3.fromValues(0.0, 1.0, 0.0);
 
 class Camera {
     constructor(speed) {
-        this.speed = speed;
-        this.yaw = -90.0;
-        this.pitch = -89.0;
+        this.normalSpeed = speed;
+        this.sprintSpeed = 2 * speed;
+        this.speed
 
-        this.viewMatrix;
-        this.projectionMatrix;
+        this.pitch  = -90;
+        this.yaw = 0;
 
-        // view Matrix
-        this.eye = vec3.fromValues(0.0, 20, 1.0);
-        this.target = vec3.fromValues(0.0, 2.0, 0.0);
-        this.up = vec3.fromValues(0.0, 1.0, 0.0);
+        this.position = vec3.fromValues(5.0, 10.0, 5.0);
+        this.direction = vec3.create();
+        this.front = vec3.create();
+        this.up = upVector;
 
-        // projection matrix (a perspective matrix)
-        this.fieldOfView = 45;   // in radians
+        this.fieldOfView = 45;
         this.aspect = gl.canvas.clientWidth / gl.canvas.clientHeight;
         this.zNear = 0.1;
         this.zFar = 100.0;
 
+        this.viewMatrix = mat4.create();
+        this.projectionMatrix = mat4.create();
+
+        mat4.lookAt(this.viewMatrix, this.position, this.position, this.up);
+        gl.uniformMatrix4fv(programInfo.uniformLocations.viewMatrix, false, this.viewMatrix);
         this.CreateProjectionMatrix();
-        this.CreateViewMatrix();
     }
 
     CreateProjectionMatrix() {
-        this.projectionMatrix = mat4.create();
         mat4.perspective(this.projectionMatrix, this.fieldOfView * Math.PI / 180, this.aspect, this.zNear, this.zFar);
         gl.uniformMatrix4fv(programInfo.uniformLocations.projectionMatrix, false, this.projectionMatrix);
     }
 
-    CreateViewMatrix() {
-        this.viewMatrix = mat4.create();
-        mat4.lookAt(this.viewMatrix, this.eye, this.target, this.up);
-    }
-
     Update(deltaTime) {
-        /*
-        let look = [(this.target[0] - this.eye[0]) * this.speed * deltaTime,
-            (this.target[1] - this.eye[1]) * this.speed * deltaTime,
-            (this.target[2] - this.eye[2]) * this.speed * deltaTime];
-            */
+        if(mouseMove.x !== 0 || mouseMove.y !== 0) {
 
-        let look = vec3.create();
-        vec3.sub(look, this.target, this.eye);
-        vec3.scale(look, look, this.speed * deltaTime);
+            this.yaw = this.yaw - mouseMove.x * 0.05;
+            this.pitch = this.pitch - mouseMove.y * 0.05;
 
+            if(this.pitch > 89.0)
+                this.pitch = 89.0;
+            if(this.pitch < -89.0)
+                this.pitch = -89.0;
+
+            let q = quat.create();
+            quat.fromEuler(q, this.pitch, this.yaw, 0);
+
+            let front = vec3.fromValues(0, 0, -1);
+            vec3.transformQuat(front, front, q);
+            vec3.normalize(front, front);
+            this.front = front;
+
+            let up = vec3.fromValues(0, 1, 0);
+            vec3.transformQuat(up, up, q);
+            vec3.normalize(up, up);
+            this.up = up;
+
+            mouseMove.x = 0;
+            mouseMove.y = 0;
+        }
+
+        if(keyPressed.ShiftLeft) {
+            this.speed = this.sprintSpeed;
+        } else {
+            this.speed = this.normalSpeed;
+        }
         if(keyPressed.KeyW) {
-            vec3.add(this.eye, this.eye, look);
-            vec3.add(this.target, this.target, look);
+            let movement = vec3.create();
+            vec3.scale(movement, this.front, deltaTime * this.speed);
+            vec3.add(this.position, this.position, movement);
         }
         if(keyPressed.KeyS) {
-            vec3.sub(this.eye, this.eye, look);
-            vec3.sub(this.target, this.target, look);
+            let movement = vec3.create();
+            vec3.scale(movement, this.front, deltaTime * this.speed);
+            vec3.subtract(this.position, this.position, movement);
         }
         if(keyPressed.KeyA) {
-            this.eye[0] += look[2];
-            this.eye[2] -= look[0];
-            this.target[0] += look[2];
-            this.target[2] -= look[0];
+            let movement = vec3.create();
+            vec3.cross(movement, this.front, upVector);
+            vec3.normalize(movement, movement);
+            vec3.scale(movement, movement, deltaTime * this.speed);
+            vec3.subtract(this.position, this.position, movement);
         }
         if(keyPressed.KeyD) {
-            this.eye[0] -= look[2];
-            this.eye[2] += look[0];
-            this.target[0] -= look[2];
-            this.target[2] += look[0];
+            let movement = vec3.create();
+            vec3.cross(movement, this.front, upVector);
+            vec3.normalize(movement, movement);
+            vec3.scale(movement, movement, deltaTime * this.speed);
+            vec3.add(this.position, this.position, movement);
         }
-        mat4.lookAt(this.viewMatrix, this.eye, this.target, this.up);
+
+        vec3.add(this.direction, this.position, this.front);
+
+        // console.log("DIRECTION:"+this.direction);
+        // console.log("RIGHT:"+right);
+        // console.log("POSITION:"+this.position);
+        // console.log("UP:"+this.up);
+        // console.log("FRONT:"+this.front);
+
+        mat4.lookAt(this.viewMatrix, this.position, this.direction, this.up);
 
         // Set view matrix
         gl.uniformMatrix4fv(programInfo.uniformLocations.viewMatrix, false, this.viewMatrix);

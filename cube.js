@@ -4,7 +4,7 @@ var programInfo;
 var camera;
 
 class Cube {
-    constructor(texture_side, texture_top, ka = {r: 0.3, g: 0.3, b: 0.3, a: 1.0}, kd = {r: 0.6, g: 0.6, b: 0.6, a: 1.0}, ks = {r: 1, g: 1, b: 1, a: 1.0}) {
+    constructor(texture_side, texture_top, ka = {r: 0.2, g: 0.2, b: 0.2, a: 1.0}, kd = {r: 0.7, g: 0.7, b: 0.7, a: 1.0}, ks = {r: 0.4, g: 0.4, b: 0.4, a: 1.0}) {
         this.positions;
         this.textures;
         this.normals;
@@ -54,9 +54,6 @@ class Cube {
 
         mat4.invert(this.normalMatrix, modelViewMatrix);
         mat4.transpose(this.normalMatrix, this.normalMatrix);
-
-        //mat4.transpose(this.normalMatrix, modelViewMatrix);
-        //mat4.invert(this.normalMatrix, this.normalMatrix);
     }
 
     InitBuffers() {

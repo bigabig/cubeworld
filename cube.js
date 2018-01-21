@@ -1,69 +1,25 @@
 var gl;
-var programInfo;
-
-var camera;
 
 class Cube {
-    constructor(texture_side, texture_top, ka = {r: 0.2, g: 0.2, b: 0.2, a: 1.0}, kd = {r: 0.7, g: 0.7, b: 0.7, a: 1.0}, ks = {r: 0.4, g: 0.4, b: 0.4, a: 1.0}) {
+    constructor(texture_side, texture_top, cubemapped = false, ka = {r: 0.2, g: 0.2, b: 0.2, a: 1.0}, kd = {r: 0.7, g: 0.7, b: 0.7, a: 1.0}, ks = {r: 0.4, g: 0.4, b: 0.4, a: 1.0}, specularExponent = 4) {
         this.positions;
         this.textures;
         this.normals;
         this.indices;
 
-        this.position = {x: 0, y: 0, z: 0};
-        this.orientation = {x: 0, y: 0, z: 0};
+        this.cubemapped = cubemapped;
 
-        this.texture_side = loadTexture(texture_side);
-        this.texture_top = loadTexture(texture_top);
-
-        this.ka = ka;
-        this.kd = kd;
-        this.ks = ks;
-        this.specularExponent = 4.0;
+        this.shader = new Shader(cubemapped);
+        this.transform = new Transform(this.shader, {x: 0, y: 0, z: 0}, {x: 0, y: 0, z: 0});
+        this.material = new Material(this.shader, texture_side, texture_top, cubemapped, ka, kd, ks, specularExponent);
 
         this.InitBuffers();
-        this.SetPositionAndOrientation();
-    }
-
-    /**
-     * Sets the model matrix
-     * @param {Object} position x,y,z
-     * @param {Object} orientation x,y,z - angles in degree
-     */
-    SetPositionAndOrientation (position = this.position, orientation = this.orientation) {
-
-        this.position = position;
-        this.orientation.x = orientation.x % 360;
-        this.orientation.y = orientation.y % 360;
-        this.orientation.z = orientation.z % 360;
-
-        // Convert the orientation to RAD
-        orientation = {x: degToRad(orientation.x), y: degToRad(orientation.y), z: degToRad(orientation.z)};
-
-        // Set the transformation matrix
-        this.modelMatrix = mat4.create();
-        mat4.translate(this.modelMatrix, this.modelMatrix, [position.x, position.y, position.z]);
-        mat4.rotate(this.modelMatrix, this.modelMatrix, orientation.x, [1, 0, 0]);
-        mat4.rotate(this.modelMatrix, this.modelMatrix, orientation.y, [0, 1, 0]);
-        mat4.rotate(this.modelMatrix, this.modelMatrix, orientation.z, [0, 0, 1]);
-
-        // Set the normal matrix
-        let modelViewMatrix = mat4.create();
-        mat4.multiply(modelViewMatrix, camera.viewMatrix, this.modelMatrix);
-        this.normalMatrix = mat4.create();
-
-        mat4.invert(this.normalMatrix, modelViewMatrix);
-        mat4.transpose(this.normalMatrix, this.normalMatrix);
     }
 
     InitBuffers() {
         // POSITIONS
         const positionBuffer = gl.createBuffer();
-
-        // Select the positionBuffer as the one to apply buffer operations to from here out.
         gl.bindBuffer(gl.ARRAY_BUFFER, positionBuffer);
-
-        // Now create an array of positions for the square.
         const positions = [
             // Front face
             -1.0, -1.0,  1.0,
@@ -101,14 +57,11 @@ class Cube {
             -1.0,  1.0,  1.0,
             -1.0,  1.0, -1.0,
         ];
-
-        // Now pass the list of positions into WebGL to build the shape.
         gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(positions), gl.STATIC_DRAW);
 
         // TEXTURES
         const textureCoordBuffer = gl.createBuffer();
         gl.bindBuffer(gl.ARRAY_BUFFER, textureCoordBuffer);
-
         const textureCoordinates = [
             // Front
             0.0,  1.0,
@@ -141,7 +94,6 @@ class Cube {
             1.0,  0.0,
             0.0,  0.0,
         ];
-
         gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(textureCoordinates), gl.STATIC_DRAW);
 
         // NORMALS
@@ -189,8 +141,6 @@ class Cube {
         // INDICES
         const indexBuffer = gl.createBuffer();
         gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, indexBuffer);
-
-        // This array defines each face as two triangles, using the indices into the vertex array to specify each triangle's position.
         const indices = [
             0,  1,  2,      0,  2,  3,    // front
             4,  5,  6,      4,  6,  7,    // back
@@ -199,8 +149,6 @@ class Cube {
             16, 17, 18,     16, 18, 19,   // right
             20, 21, 22,     20, 22, 23,   // left
         ];
-
-        // Now send the element array to GL
         gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, new Uint16Array(indices), gl.STATIC_DRAW);
 
         // Set the corresponding variables
@@ -210,7 +158,9 @@ class Cube {
         this.normals = normalBuffer;
     }
 
-    Render() {
+    UpdateAttributs() {
+        gl.useProgram(this.shader.program);
+
         // Tell WebGL how to pull out the positions from the position buffer into the vertexPosition attribute.
         {
             const numComponents = 3;  // pull out 3 values per iteration
@@ -220,72 +170,61 @@ class Cube {
                                       // 0 = use type and numComponents above
             const offset = 0;         // how many bytes inside the buffer to start from
             gl.bindBuffer(gl.ARRAY_BUFFER, this.positions);
-            gl.vertexAttribPointer(programInfo.attribLocations.vertexPosition, numComponents, type, normalize, stride, offset);
-            gl.enableVertexAttribArray(programInfo.attribLocations.vertexPosition);
+            gl.vertexAttribPointer(this.shader.attribLocations.vertexPosition, numComponents, type, normalize, stride, offset);
+            gl.enableVertexAttribArray(this.shader.attribLocations.vertexPosition);
         }
 
-        // tell webgl how to pull out the texture coordinates from buffer
-        {
-            const num = 2; // every coordinate composed of 2 values
-            const type = gl.FLOAT; // the data in the buffer is 32 bit float
-            const normalize = false; // don't normalize
-            const stride = 0; // how many bytes to get from one set to the next
-            const offset = 0; // how many butes inside the buffer to start from
-            gl.bindBuffer(gl.ARRAY_BUFFER, this.textures);
-            gl.vertexAttribPointer(programInfo.attribLocations.textureCoord, num, type, normalize, stride, offset);
-            gl.enableVertexAttribArray(programInfo.attribLocations.textureCoord);
-        }
+        if(!this.cubemapped) {
+            // tell webgl how to pull out the texture coordinates from buffer
+            {
+                const num = 2; // every coordinate composed of 2 values
+                const type = gl.FLOAT; // the data in the buffer is 32 bit float
+                const normalize = false; // don't normalize
+                const stride = 0; // how many bytes to get from one set to the next
+                const offset = 0; // how many butes inside the buffer to start from
+                gl.bindBuffer(gl.ARRAY_BUFFER, this.textures);
+                gl.vertexAttribPointer(this.shader.attribLocations.textureCoord, num, type, normalize, stride, offset);
+                gl.enableVertexAttribArray(this.shader.attribLocations.textureCoord);
+            }
 
-        // tell webgl how to pull out the texture coordinates from buffer
-        {
-            const num = 3; // every coordinate composed of 2 values
-            const type = gl.FLOAT; // the data in the buffer is 32 bit float
-            const normalize = false; // don't normalize
-            const stride = 0; // how many bytes to get from one set to the next
-            const offset = 0; // how many butes inside the buffer to start from
-            gl.bindBuffer(gl.ARRAY_BUFFER, this.normals);
-            gl.vertexAttribPointer(programInfo.attribLocations.normal, num, type, normalize, stride, offset);
-            gl.enableVertexAttribArray(programInfo.attribLocations.normal);
+            // tell webgl how to pull out the normals from buffer
+            {
+                const num = 3; // every coordinate composed of 2 values
+                const type = gl.FLOAT; // the data in the buffer is 32 bit float
+                const normalize = false; // don't normalize
+                const stride = 0; // how many bytes to get from one set to the next
+                const offset = 0; // how many butes inside the buffer to start from
+                gl.bindBuffer(gl.ARRAY_BUFFER, this.normals);
+                gl.vertexAttribPointer(this.shader.attribLocations.normal, num, type, normalize, stride, offset);
+                gl.enableVertexAttribArray(this.shader.attribLocations.normal);
+            }
         }
-
-        // use texture
-        // Tell WebGL we want to affect texture unit 0
-        gl.activeTexture(gl.TEXTURE0);
-        // Bind the texture to texture unit 0
-        gl.bindTexture(gl.TEXTURE_2D, this.texture_side);
-        // Tell the shader we bound the texture to texture unit 0
-        gl.uniform1i(programInfo.uniformLocations.uSampler, 0);
 
         // Tell WebGL which indices to use to index the vertices
         gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, this.indices);
+    }
 
-        // Set the shader uniforms
-        gl.uniformMatrix4fv(programInfo.uniformLocations.modelMatrix, false, this.modelMatrix);
-        gl.uniformMatrix4fv(programInfo.uniformLocations.normalMatrix, false, this.normalMatrix);
-        gl.uniform4fv(programInfo.uniformLocations.uKa, Object.values(this.ka));
-        gl.uniform4fv(programInfo.uniformLocations.uKd, Object.values(this.kd));
-        gl.uniform4fv(programInfo.uniformLocations.uKs, Object.values(this.ks));
-        gl.uniform1f(programInfo.uniformLocations.uSpecularExponent, this.specularExponent);
+    Render() {
+        // Set the attributes
+        this.UpdateAttributs();
 
-        /*
-        {
-            const vertexCount = 36;
-            const type = gl.UNSIGNED_SHORT;
-            const offset = 0;
-            gl.drawElements(gl.TRIANGLES, vertexCount, type, offset);
+        // Set the uniforms
+        this.transform.UpdateUniforms();
+        this.material.UpdateUniforms();
+
+        if(!this.cubemapped) {
+            this.material.ActivateTexture1();
+            gl.drawElements(gl.TRIANGLES, 12, gl.UNSIGNED_SHORT, 0);
+
+            this.material.ActivateTexture2();
+            gl.drawElements(gl.TRIANGLES, 12, gl.UNSIGNED_SHORT, 24);
+
+            this.material.ActivateTexture1();
+            gl.drawElements(gl.TRIANGLES, 12, gl.UNSIGNED_SHORT, 48);
+        } else {
+            this.material.ActivateTexturCubemap();
+            gl.drawElements(gl.TRIANGLES, 36, gl.UNSIGNED_SHORT, 0);
         }
-        */
-        gl.bindTexture(gl.TEXTURE_2D, this.texture_side);
-        gl.uniform1i(programInfo.uniformLocations.uSampler, 0);
-        gl.drawElements(gl.TRIANGLES, 12, gl.UNSIGNED_SHORT, 0);
-
-        gl.bindTexture(gl.TEXTURE_2D, this.texture_top);
-        gl.uniform1i(programInfo.uniformLocations.uSampler, 0);
-        gl.drawElements(gl.TRIANGLES, 12, gl.UNSIGNED_SHORT, 24);
-
-        gl.bindTexture(gl.TEXTURE_2D, this.texture_side);
-        gl.uniform1i(programInfo.uniformLocations.uSampler, 0);
-        gl.drawElements(gl.TRIANGLES, 12, gl.UNSIGNED_SHORT, 48);
     }
 
     Update(deltaTime) {

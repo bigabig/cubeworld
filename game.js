@@ -36,11 +36,20 @@ function main() {
 
     camera = new Camera(10);
 
+    let c = new Cube([
+        "textures/skybox_posx.jpg", "textures/skybox_negx.jpg",
+        "textures/skybox_posy.jpg", "textures/skybox_negy.jpg",
+        "textures/skybox_posz.jpg", "textures/skybox_negz.jpg"
+    ], "textures/skybox_posx.jpg", true);
+    c.transform.position = {x: 10, y: 10, z: 10};
+    c.transform.scale = {x: 50, y: 50, z: 50};
+    c.transform.SetPositionScaleOrientation();
+    objects.push(c);
 
     var generator = new Generator(objects);
     //generator.GenerateTree({x:5, y: 2, z: 5}, 0);
     //generator.GenerateTree({x:-5, y: 2, z: -5}, 1);
-    generator.GenerateTerrain(10, 30, 10);
+    generator.GenerateTerrain(20, 30, 20);
     objects = generator.GetObjects();
 
     requestAnimationFrame(gameLoop);
@@ -56,13 +65,13 @@ function render() {
     gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
 
     objects.forEach(function(object) {
+        lighting.UpdateUniforms(object.shader);
+        camera.UpdateUniforms(object.shader);
         object.Render();
     });
 }
 
 function update(deltaTime) {
-    lighting.Update();
-
     objects.forEach(function(object) {
         object.Update(deltaTime);
     });

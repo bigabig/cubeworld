@@ -239,14 +239,14 @@ class Generator {
         let tree = [];
 
         stamm.forEach(function(t) {
-            var cube = new Cube("textures/log_spruce.png", "textures/log_spruce_top.png");
-            cube.SetPositionAndOrientation({x: position.x + t[0] * 2, y: position.y + t[1] * 2, z: position.z + t[2] * 2});
+            var cube = new Cube("textures/log_spruce.png", "textures/log_spruce_top.png", false);
+            cube.transform.SetPositionScaleOrientation({x: position.x + t[0] * 2, y: position.y + t[1] * 2, z: position.z + t[2] * 2}, {x: 0, y: 0, z: 0}, {x: 1, y: 1, z: 1});
             tree.push(cube);
         });
 
         leaves[variant].forEach(function(l) {
-            var cube = new Cube("textures/leaves_oak_opaque.png", "textures/leaves_oak_opaque.png");
-            cube.SetPositionAndOrientation({x: position.x + l[0] * 2, y: position.y + l[1] * 2, z: position.z + l[2] * 2});
+            var cube = new Cube("textures/leaves_oak_opaque.png", "textures/leaves_oak_opaque.png", false);
+            cube.transform.SetPositionScaleOrientation({x: position.x + l[0] * 2, y: position.y + l[1] * 2, z: position.z + l[2] * 2}, {x: 0, y: 0, z: 0}, {x: 1, y: 1, z: 1});
             tree.push(cube);
         });
 
@@ -274,7 +274,7 @@ class Generator {
                                 max = e;
                         }
                     }
-                    if(myNoise.SimpleNoise(x, 0, z) == max) {
+                    if(myNoise.SimpleNoise(x, 0, z) === max) {
                         this.GenerateTree({x: x * 2, y: (height + 1) * 2, z: z * 2}, 0);
                     }
                 }
@@ -287,15 +287,15 @@ class Generator {
 
                 for(let y = 0; y <= ySize; y++) {
 
-                    if(y == height) {
-                        var cube = this.GetBlock(height);
-                        cube.SetPositionAndOrientation({x: x * 2, y: y * 2, z: z * 2});
+                    if(y === height) {
+                        let cube = this.GetBlock(height);
+                        cube.transform.SetPositionScaleOrientation({x: x * 2, y: y * 2, z: z * 2});
                         blocks.push(cube);
                     }
 
-                    if((x == 0 || z == 0 || x == xSize || z == zSize) && y < height) {
-                        var cube = this.GetBlock(height);
-                        cube.SetPositionAndOrientation({x: x * 2, y: y * 2, z: z * 2});
+                    if((x === 0 || z === 0 || x === xSize || z === zSize) && y < height) {
+                        let cube = this.GetBlock(height);
+                        cube.transform.SetPositionScaleOrientation({x: x * 2, y: y * 2, z: z * 2});
                         blocks.push(cube);
                     }
 
@@ -338,15 +338,15 @@ class Generator {
     GetBlock(height) {
         var cube;
         if(height <= 1) {
-            cube = new Cube("textures/water.png", "textures/water.png");
+            cube = new Cube("textures/water.png", "textures/water.png", false);
         } else if (height <= 3) {
-            cube = new Cube("textures/sand.png", "textures/sand.png");
+            cube = new Cube("textures/sand.png", "textures/sand.png", false);
         } else if (height <= 8) {
-            cube = new Cube("textures/grass_side.png", "textures/grass_top.png");
+            cube = new Cube("textures/grass_side.png", "textures/grass_top.png", false);
         } else if (height <= 13) {
-            cube = new Cube("textures/stone.png", "textures/stone.png");
+            cube = new Cube("textures/stone.png", "textures/stone.png", false);
         } else {
-            cube = new Cube("textures/snow.png", "textures/snow.png");
+            cube = new Cube("textures/snow.png", "textures/snow.png", false);
         }
         return cube;
     }

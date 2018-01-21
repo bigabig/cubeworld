@@ -64,3 +64,56 @@ function loadTexture(url) {
     return texture;
 }
 
+function loadSkyboxTexture(srcs) {
+    const texture = gl.createTexture();
+    gl.bindTexture(gl.TEXTURE_CUBE_MAP, texture);
+    const level = 0;
+    const internalFormat = gl.RGBA;
+    const width = 1;
+    const height = 1;
+    const border = 0;
+    const srcFormat = gl.RGBA;
+    const srcType = gl.UNSIGNED_BYTE;
+    const pixel = new Uint8Array([0, 0, 255, 255]);  // opaque blue
+    let targets = [
+        gl.TEXTURE_CUBE_MAP_POSITIVE_X, gl.TEXTURE_CUBE_MAP_NEGATIVE_X,
+        gl.TEXTURE_CUBE_MAP_POSITIVE_Y, gl.TEXTURE_CUBE_MAP_NEGATIVE_Y,
+        gl.TEXTURE_CUBE_MAP_POSITIVE_Z, gl.TEXTURE_CUBE_MAP_NEGATIVE_Z
+    ];
+    for (let j = 0; j < 6; j++) {
+        gl.texImage2D(targets[j], level, internalFormat,
+            width, height, border, srcFormat, srcType,
+            pixel);
+    }
+
+    let numberOfLoadedSkyboxImages = 0;
+    let skyboxImages = [];
+
+    for (let i = 0; i < 6; i++) {
+        skyboxImages[i] = new Image();
+        skyboxImages[i].onload = function () {
+            numberOfLoadedSkyboxImages++;
+            if (numberOfLoadedSkyboxImages === 6) {
+                gl.bindTexture(gl.TEXTURE_CUBE_MAP, texture);
+                let targets = [
+                    gl.TEXTURE_CUBE_MAP_POSITIVE_X, gl.TEXTURE_CUBE_MAP_NEGATIVE_X,
+                    gl.TEXTURE_CUBE_MAP_POSITIVE_Y, gl.TEXTURE_CUBE_MAP_NEGATIVE_Y,
+                    gl.TEXTURE_CUBE_MAP_POSITIVE_Z, gl.TEXTURE_CUBE_MAP_NEGATIVE_Z
+                ];
+                for (let j = 0; j < 6; j++) {
+                    gl.texImage2D(targets[j], 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, skyboxImages[j]);
+                }
+                gl.texParameteri(gl.TEXTURE_CUBE_MAP, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
+                gl.texParameteri(gl.TEXTURE_CUBE_MAP, gl.TEXTURE_MIN_FILTER, gl.LINEAR_MIPMAP_NEAREST);
+
+                if (isPowerOf2(skyboxImages[0].width) && isPowerOf2(skyboxImages[0].height)) {
+                    gl.generateMipmap(gl.TEXTURE_CUBE_MAP);
+                }
+                // gl.bindTexture(gl.TEXTURE_CUBE_MAP, null);
+            }
+        };
+        skyboxImages[i].src = srcs[i];
+    }
+
+    return texture;
+}

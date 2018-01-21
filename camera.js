@@ -25,7 +25,7 @@ class Camera {
         this.pitch  = -90;
         this.yaw = 0;
 
-        this.position = vec3.fromValues(5.0, 10.0, 5.0);
+        this.position = vec3.fromValues(5.0, 12.0, 5.0);
         this.direction = vec3.create();
         this.front = vec3.create();
         this.up = upVector;
@@ -115,8 +115,11 @@ class Camera {
         // console.log("FRONT:"+this.front);
 
         mat4.lookAt(this.viewMatrix, this.position, this.direction, this.up);
+    }
 
-        // Set view matrix
-        gl.uniformMatrix4fv(programInfo.uniformLocations.viewMatrix, false, this.viewMatrix);
+    UpdateUniforms(shader) {
+        gl.useProgram(shader.program);
+        gl.uniformMatrix4fv(shader.uniformLocations.projectionMatrix, false, this.projectionMatrix);
+        gl.uniformMatrix4fv(shader.uniformLocations.viewMatrix, false, this.viewMatrix);
     }
 }

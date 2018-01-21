@@ -33,11 +33,12 @@ class Lighting {
         this.specular = specular;
     }
 
-    Update() {
-        gl.uniform3fv(programInfo.uniformLocations.uLightPosition, this.positions);
-        gl.uniform4fv(programInfo.uniformLocations.uIa, Object.values(this.ambient));
-        gl.uniform4fv(programInfo.uniformLocations.uId, this.diffuse);
-        gl.uniform4fv(programInfo.uniformLocations.uIs, this.specular);
+    UpdateUniforms(shader) {
+        gl.useProgram(shader.program);
+        gl.uniform3fv(shader.uniformLocations.uLightPosition, this.positions);
+        gl.uniform4fv(shader.uniformLocations.uIa, Object.values(this.ambient));
+        gl.uniform4fv(shader.uniformLocations.uId, this.diffuse);
+        gl.uniform4fv(shader.uniformLocations.uIs, this.specular);
     }
 }
 

@@ -14,7 +14,7 @@ function main() {
         return;
     }
 
-    const program = initShaders(gl, "vertex-shader", "fragment-shader");
+    const program = initShaders(gl, "vertex-shader-phong", "fragment-shader-phong");
 
     programInfo = {
         program: program,

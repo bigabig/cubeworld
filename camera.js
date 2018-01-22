@@ -39,13 +39,13 @@ class Camera {
         this.projectionMatrix = mat4.create();
 
         mat4.lookAt(this.viewMatrix, this.position, this.position, this.up);
-        gl.uniformMatrix4fv(programInfo.uniformLocations.viewMatrix, false, this.viewMatrix);
+        //gl.uniformMatrix4fv(programInfo.uniformLocations.viewMatrix, false, this.viewMatrix);
         this.CreateProjectionMatrix();
     }
 
     CreateProjectionMatrix() {
         mat4.perspective(this.projectionMatrix, this.fieldOfView * Math.PI / 180, this.aspect, this.zNear, this.zFar);
-        gl.uniformMatrix4fv(programInfo.uniformLocations.projectionMatrix, false, this.projectionMatrix);
+        //gl.uniformMatrix4fv(programInfo.uniformLocations.projectionMatrix, false, this.projectionMatrix);
     }
 
     Update(deltaTime) {

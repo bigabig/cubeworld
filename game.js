@@ -26,7 +26,7 @@ function main() {
     greenLight.setSpecular({r: .5, g: .5, b: .5, a: 1.0});
 
     lighting = new Lighting();
-    lighting.setAmbient({r: .2, g: .2, b: .2, a: 1.0});
+    lighting.setAmbient({r: .5, g: .5, b: .5, a: 1.0});
 
     lighting.addLight(redLight);
     //lighting.addLight(blueLight);
@@ -35,10 +35,19 @@ function main() {
     lighting.Init();
 
     camera = new Camera(10);
+    let c1 = new Cube("textures/sand_diffuse.jpg", "textures/sand_diffuse.jpg", "textures/sand_normal.jpg");
+    c1.transform.position = {x: 7, y: 5, z: 7};
+    c1.transform.SetPositionScaleOrientation();
+    objects.push(c1);
     let c2 = new Cube("textures/sand_diffuse.jpg", "textures/sand_diffuse.jpg", "textures/sand_normal.jpg");
-    c2.transform.position = {x: 5, y: -5, z: 5};
+    c2.transform.position = {x: 5, y: 5, z: 5};
     c2.transform.SetPositionScaleOrientation();
     objects.push(c2);
+    camera = new Camera(10);
+    let c3 = new Cube("textures/sand_diffuse.jpg", "textures/sand_diffuse.jpg");
+    c3.transform.position = {x: 5, y: 5, z: 7};
+    c3.transform.SetPositionScaleOrientation();
+    objects.push(c3);
 
 
     let c = new Cube([
@@ -51,11 +60,11 @@ function main() {
     c.transform.SetPositionScaleOrientation();
     objects.push(c);
 
-    var generator = new Generator(objects);
+    //var generator = new Generator(objects);
     //generator.GenerateTree({x:5, y: 2, z: 5}, 0);
     //generator.GenerateTree({x:-5, y: 2, z: -5}, 1);
-    generator.GenerateTerrain(10, 30, 10);
-    objects = generator.GetObjects();
+    //generator.GenerateTerrain(30, 30, 30);
+    //objects = generator.GetObjects();
 
     requestAnimationFrame(gameLoop);
 }

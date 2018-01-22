@@ -19,7 +19,8 @@ class Material {
             this.texture1 = loadTexture(texture1);
             this.texture2 = loadTexture(texture2);
         }
-        this.normalmap = loadTexture(normalmap);
+        if(this.normalmapped)
+            this.normalmap = loadTexture(normalmap);
 
         this.shader = shader;
     }
@@ -38,9 +39,9 @@ class Material {
 
     ActivateNormalMap() {
         if(this.normalmapped) {
-            gl.activeTexture(gl.TEXTURE0);
+            gl.activeTexture(gl.TEXTURE1);
             gl.bindTexture(gl.TEXTURE_2D, this.normalmap);
-            gl.uniform1i(this.shader.uniformLocations.uSamplerNormal, 0);
+            gl.uniform1i(this.shader.uniformLocations.uSamplerNormal, 1);
             gl.uniform1i(this.shader.uniformLocations.uIsNormalMapped, 1);
         }
     }

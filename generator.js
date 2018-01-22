@@ -341,6 +341,7 @@ class Generator {
             cube = new Cube("textures/water.png", "textures/water.png");
         } else if (height <= 3) {
             cube = new Cube("textures/sand.png", "textures/sand.png");
+            //cube = new Cube("textures/sand_diffuse.jpg", "textures/sand_diffuse.jpg", "textures/sand_normal.jpg");
         } else if (height <= 8) {
             cube = new Cube("textures/grass_side.png", "textures/grass_top.png");
         } else if (height <= 13) {

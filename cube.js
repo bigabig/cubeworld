@@ -1,7 +1,7 @@
 var gl;
 
 class Cube {
-    constructor(texture_side, texture_top, cubemapped = false, ka = {r: 0.2, g: 0.2, b: 0.2, a: 1.0}, kd = {r: 0.7, g: 0.7, b: 0.7, a: 1.0}, ks = {r: 0.4, g: 0.4, b: 0.4, a: 1.0}, specularExponent = 4) {
+    constructor(texture_side, texture_top, normalmap = null, cubemapped = false, ka = {r: 0.2, g: 0.2, b: 0.2, a: 1.0}, kd = {r: 0.7, g: 0.7, b: 0.7, a: 1.0}, ks = {r: 0.4, g: 0.4, b: 0.4, a: 1.0}, specularExponent = 4) {
         this.positions;
         this.textures;
         this.normals;
@@ -11,7 +11,7 @@ class Cube {
 
         this.shader = new Shader(cubemapped);
         this.transform = new Transform(this.shader, {x: 0, y: 0, z: 0}, {x: 0, y: 0, z: 0});
-        this.material = new Material(this.shader, texture_side, texture_top, cubemapped, ka, kd, ks, specularExponent);
+        this.material = new Material(this.shader, texture_side, texture_top, normalmap, cubemapped, ka, kd, ks, specularExponent);
 
         this.InitBuffers();
     }
@@ -213,6 +213,8 @@ class Cube {
         this.material.UpdateUniforms();
 
         if(!this.cubemapped) {
+            this.material.ActivateNormalMap();
+
             this.material.ActivateTexture1();
             gl.drawElements(gl.TRIANGLES, 12, gl.UNSIGNED_SHORT, 0);
 

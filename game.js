@@ -35,12 +35,17 @@ function main() {
     lighting.Init();
 
     camera = new Camera(10);
+    let c2 = new Cube("textures/sand_diffuse.jpg", "textures/sand_diffuse.jpg", "textures/sand_normal.jpg");
+    c2.transform.position = {x: 5, y: -5, z: 5};
+    c2.transform.SetPositionScaleOrientation();
+    objects.push(c2);
+
 
     let c = new Cube([
         "textures/skybox_posx.jpg", "textures/skybox_negx.jpg",
         "textures/skybox_posy.jpg", "textures/skybox_negy.jpg",
         "textures/skybox_posz.jpg", "textures/skybox_negz.jpg"
-    ], "textures/skybox_posx.jpg", true);
+    ], "textures/skybox_posx.jpg", null, true);
     c.transform.position = {x: 10, y: 10, z: 10};
     c.transform.scale = {x: 50, y: 50, z: 50};
     c.transform.SetPositionScaleOrientation();
@@ -49,7 +54,7 @@ function main() {
     var generator = new Generator(objects);
     //generator.GenerateTree({x:5, y: 2, z: 5}, 0);
     //generator.GenerateTree({x:-5, y: 2, z: -5}, 1);
-    generator.GenerateTerrain(20, 30, 20);
+    generator.GenerateTerrain(10, 30, 10);
     objects = generator.GetObjects();
 
     requestAnimationFrame(gameLoop);

@@ -49,6 +49,14 @@ class Transform {
     UpdateUniforms() {
         gl.useProgram(this.shader.program);
 
+        // Set the normal matrix
+        let modelViewMatrix = mat4.create();
+        mat4.multiply(modelViewMatrix, camera.viewMatrix, this.modelMatrix);
+        this.normalMatrix = mat4.create();
+
+        mat4.invert(this.normalMatrix, modelViewMatrix);
+        mat4.transpose(this.normalMatrix, this.normalMatrix);
+
         gl.uniformMatrix4fv(this.shader.uniformLocations.modelMatrix, false, this.modelMatrix);
         gl.uniformMatrix4fv(this.shader.uniformLocations.normalMatrix, false, this.normalMatrix);
     }

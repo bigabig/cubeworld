@@ -239,13 +239,13 @@ class Generator {
         let tree = [];
 
         stamm.forEach(function(t) {
-            var cube = new Cube("textures/log_spruce.png", "textures/log_spruce_top.png");
+            var cube = new Cube("textures/log_spruce.png", "textures/log_spruce_top.png", "textures/log_spruce_top_NORM.png");
             cube.transform.SetPositionScaleOrientation({x: position.x + t[0] * 2, y: position.y + t[1] * 2, z: position.z + t[2] * 2}, {x: 0, y: 0, z: 0}, {x: 1, y: 1, z: 1});
             tree.push(cube);
         });
 
         leaves[variant].forEach(function(l) {
-            var cube = new Cube("textures/leaves_oak_opaque.png", "textures/leaves_oak_opaque.png");
+            var cube = new Cube("textures/leaves_oak_opaque.png", "textures/leaves_oak_opaque.png", "textures/leaves_oak_opaque_NORM.png");
             cube.transform.SetPositionScaleOrientation({x: position.x + l[0] * 2, y: position.y + l[1] * 2, z: position.z + l[2] * 2}, {x: 0, y: 0, z: 0}, {x: 1, y: 1, z: 1});
             tree.push(cube);
         });
@@ -338,16 +338,16 @@ class Generator {
     GetBlock(height) {
         var cube;
         if(height <= 1) {
-            cube = new Cube("textures/water.png", "textures/water.png");
+            cube = new Cube("textures/water.png", "textures/water.png", "textures/water_NORM.png");
         } else if (height <= 3) {
-            cube = new Cube("textures/sand.png", "textures/sand.png");
+            cube = new Cube("textures/sand.png", "textures/sand.png", "textures/sand_NORM.png");
             //cube = new Cube("textures/sand_diffuse.jpg", "textures/sand_diffuse.jpg", "textures/sand_normal.jpg");
         } else if (height <= 8) {
-            cube = new Cube("textures/grass_side.png", "textures/grass_top.png");
+            cube = new Cube("textures/grass_side.png", "textures/grass_top.png", "textures/grass_top_NORM.png");
         } else if (height <= 13) {
-            cube = new Cube("textures/stone.png", "textures/stone.png");
+            cube = new Cube("textures/stone.png", "textures/stone.png", "textures/stone_NORM.png");
         } else {
-            cube = new Cube("textures/snow.png", "textures/snow.png");
+            cube = new Cube("textures/snow.png", "textures/snow.png", "textures/snow_NORM.png");
         }
         return cube;
     }

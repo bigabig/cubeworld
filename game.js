@@ -34,6 +34,8 @@ function main() {
 
     lighting.Init();
 
+    let model = new Model();
+
     camera = new Camera(10);
 
     let c = new Cube([
@@ -49,7 +51,7 @@ function main() {
     var generator = new Generator(objects);
     //generator.GenerateTree({x:5, y: 2, z: 5}, 0);
     //generator.GenerateTree({x:-5, y: 2, z: -5}, 1);
-    generator.GenerateTerrain(20, 30, 20);
+    generator.GenerateTerrain(4, 30, 4);
     objects = generator.GetObjects();
 
     requestAnimationFrame(gameLoop);

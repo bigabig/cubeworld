@@ -32,6 +32,45 @@
 			}
     </script>
 
+
+    <script id="vertex-shader-fresnel" type="x-shader/x-vertex">
+			attribute vec4 aVertexPosition;
+			attribute vec3 aNormal;
+
+			uniform mat4 uModelMatrix;
+			uniform mat4 uViewMatrix;
+			uniform mat4 uProjectionMatrix;
+
+			varying vec4 vPosition;
+			varying vec4 vNormal;
+
+			void main()
+			{
+				vPosition = uViewMatrix * uModelMatrix * aVertexPosition;
+				vNormal = uViewMatrix * uModelMatrix * vec4(aNormal, 0.0);
+
+				gl_Position = uProjectionMatrix * vPosition;
+			}
+    </script>
+
+    <script id="fragment-shader-fresnel" type="x-shader/x-fragment">
+			precision mediump float;
+
+			uniform samplerCube uSamplerSkybox;
+			varying vec3 vDirVector;
+
+			varying vec4 vPosition;
+			varying vec4 vNormal;
+
+			void main()
+			{
+			    float reflection = dot(vNormal.xyz, -vPosition.xyz);
+
+				gl_FragColor = vec4(reflection, reflection, reflection, 1.0);
+			}
+    </script>
+
+
     <script id="vertex-shader-phong" type="x-shader/x-vertex">
         attribute vec4 aVertexPosition;
         attribute vec3 aNormal;
@@ -141,6 +180,79 @@
         }
     </script>
 
+    <script id="vertex-shader-fresnel2" type="x-shader/x-vertex">
+        attribute vec4 aVertexPosition;
+        attribute vec3 aNormal;
+        attribute vec2 aTextureCoord;
+
+        uniform mat4 uModelMatrix;
+        uniform mat4 uViewMatrix;
+        uniform mat4 uProjectionMatrix;
+
+        varying vec2 vTextureCoord;
+        varying vec4 vPosition;
+        varying vec4 vNormal;
+
+        const int NUM_LIGHTS = 1;
+        uniform vec3 uLightPosition[NUM_LIGHTS];
+        varying vec4 vLightPos[NUM_LIGHTS];
+        varying vec4 vWorldLightPos[NUM_LIGHTS];
+        varying vec4 vWorldPosition;
+        varying mat4 vNormalMatrix;
+
+        void main()
+        {
+            vPosition = uViewMatrix * uModelMatrix * aVertexPosition;
+            vNormalMatrix = uModelMatrix * uViewMatrix;
+            vNormal = vec4(aNormal, 0.0);
+
+
+            gl_Position = uProjectionMatrix * vPosition;
+        }
+    </script>
+
+    <script id="fragment-shader-fresnel2" type="x-shader/x-fragment">
+        precision mediump float;
+
+        const int NUM_LIGHTS = 1;
+
+        varying vec2 vTextureCoord;
+        varying vec4 vPosition;
+        varying vec4 vNormal;
+        varying vec4 vLightPos[NUM_LIGHTS];
+        varying vec4 vWorldLightPos[NUM_LIGHTS];
+        varying vec4 vWorldPosition;
+        varying mat4 vNormalMatrix;
+
+        uniform sampler2D uSampler;
+        uniform sampler2D uSamplerNormal;
+        uniform vec4 uIa;
+        uniform vec4 uId[NUM_LIGHTS];
+        uniform vec4 uIs[NUM_LIGHTS];
+        uniform vec4 uKa;
+        uniform vec4 uKd;
+        uniform vec4 uKs;
+        uniform float uSpecularExponent;
+        uniform mat4 uNormalMatrix;
+        uniform bool uIsNormalMapped;
+
+        const float c1 = 1.0;
+        const float c2 = 0.0005;
+        const float c3 = 0.000003;
+
+        void main()
+        {
+            vec3 V = normalize((-vPosition).xyz);
+            vec3 N = normalize((vNormalMatrix * vNormal).xyz);
+            float reflection = max(0.0, dot(N, V));
+            reflection = max(0.0, 1.0 - reflection);
+            reflection = pow(reflection, 16.0);
+            //reflection = pow(2.7183, reflection) / 2.7173;
+
+            gl_FragColor = vec4(reflection, reflection, reflection, 1.0);
+        }
+    </script>
+
     <script type="text/javascript" src="common/initShaders.js"></script>
     <script type="text/javascript" src="common/gl-matrix.js"></script>
 </head>
@@ -161,6 +273,7 @@
 <script type="text/javascript" src="cube.js"></script>
 <script type="text/javascript" src="light.js"></script>
 <script type="text/javascript" src="generator.js"></script>
+<script type="text/javascript" src="model.js"></script>
 <script type="text/javascript" src="game.js"></script>
 <script type="text/javascript" src="input.js"></script>
 

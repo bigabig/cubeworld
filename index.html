@@ -19,7 +19,6 @@
 				vDirVector = aVertexPosition.xyz;
 			}
     </script>
-
     <script id="fragment-shader-skybox" type="x-shader/x-fragment">
 			precision mediump float;
 
@@ -31,45 +30,6 @@
 				gl_FragColor = textureCube(uSamplerSkybox, vDirVector);
 			}
     </script>
-
-
-    <script id="vertex-shader-fresnel" type="x-shader/x-vertex">
-			attribute vec4 aVertexPosition;
-			attribute vec3 aNormal;
-
-			uniform mat4 uModelMatrix;
-			uniform mat4 uViewMatrix;
-			uniform mat4 uProjectionMatrix;
-
-			varying vec4 vPosition;
-			varying vec4 vNormal;
-
-			void main()
-			{
-				vPosition = uViewMatrix * uModelMatrix * aVertexPosition;
-				vNormal = uViewMatrix * uModelMatrix * vec4(aNormal, 0.0);
-
-				gl_Position = uProjectionMatrix * vPosition;
-			}
-    </script>
-
-    <script id="fragment-shader-fresnel" type="x-shader/x-fragment">
-			precision mediump float;
-
-			uniform samplerCube uSamplerSkybox;
-			varying vec3 vDirVector;
-
-			varying vec4 vPosition;
-			varying vec4 vNormal;
-
-			void main()
-			{
-			    float reflection = dot(vNormal.xyz, -vPosition.xyz);
-
-				gl_FragColor = vec4(reflection, reflection, reflection, 1.0);
-			}
-    </script>
-
 
     <script id="vertex-shader-phong" type="x-shader/x-vertex">
         attribute vec4 aVertexPosition;
@@ -109,7 +69,6 @@
             gl_Position = uProjectionMatrix * vPosition;
         }
     </script>
-
     <script id="fragment-shader-phong" type="x-shader/x-fragment">
         precision mediump float;
 
@@ -180,7 +139,7 @@
         }
     </script>
 
-    <script id="vertex-shader-fresnel2" type="x-shader/x-vertex">
+    <script id="vertex-shader-fresnel" type="x-shader/x-vertex">
         attribute vec4 aVertexPosition;
         attribute vec3 aNormal;
         attribute vec2 aTextureCoord;
@@ -210,8 +169,7 @@
             gl_Position = uProjectionMatrix * vPosition;
         }
     </script>
-
-    <script id="fragment-shader-fresnel2" type="x-shader/x-fragment">
+    <script id="fragment-shader-fresnel" type="x-shader/x-fragment">
         precision mediump float;
 
         const int NUM_LIGHTS = 1;
@@ -253,6 +211,140 @@
         }
     </script>
 
+    <script id="vertex-shader-water" type="x-shader/x-vertex">
+        attribute vec4 aVertexPosition;
+        attribute vec3 aNormal;
+        attribute vec2 aTextureCoord;
+
+        uniform mat4 uModelMatrix;
+        uniform mat4 uViewMatrix;
+        uniform mat4 uProjectionMatrix;
+
+        uniform float uTime;
+
+        varying vec2 vTextureCoord;
+        varying vec4 vPosition;
+        varying vec4 vNormal;
+
+        const int NUM_LIGHTS = 1;
+        uniform vec3 uLightPosition[NUM_LIGHTS];
+        varying vec4 vLightPos[NUM_LIGHTS];
+        varying vec4 vWorldLightPos[NUM_LIGHTS];
+        varying vec4 vWorldPosition;
+        varying mat4 vNormalMatrix;
+
+        float wave(float x, float z, float height, float smooth, float time) {
+            return height * sin((x + time)/ smooth) * sin((z + time) / smooth);
+        }
+
+        void main() {
+            // calculate positions in camera coordinates & world coordinates
+            float height = 4.0;
+            float smooth = 4.0;
+            float e = 0.1;
+
+            vec3 P = vec3(aVertexPosition.x, wave(aVertexPosition.x, aVertexPosition.z, height, smooth, uTime), aVertexPosition.z);
+            vec3 B = vec3(aVertexPosition.x, wave(aVertexPosition.x, aVertexPosition.z + e, height, smooth, uTime), aVertexPosition.z + e);
+            vec3 T = vec3(aVertexPosition.x + e, wave(aVertexPosition.x + e, aVertexPosition.z, height, smooth, uTime), aVertexPosition.z);
+
+            B = B - P;
+            T = T - P;
+
+            B = normalize(B);
+            T = normalize(T);
+
+            vec3 N = cross(B, T);
+            N = normalize(N);
+
+            vPosition = uViewMatrix * uModelMatrix * vec4(P, aVertexPosition.w);
+
+            vWorldPosition = uModelMatrix * aVertexPosition;
+            for(int i=0; i < NUM_LIGHTS; i++){
+                vLightPos[i] = uViewMatrix * vec4(uLightPosition[i], 1);
+                vWorldLightPos[i] = vec4(uLightPosition[i], 1);
+            }
+
+            vNormal = vec4(N, 0.0);
+            vNormalMatrix = uModelMatrix * uViewMatrix;
+
+
+            vTextureCoord = aTextureCoord;
+
+            gl_Position = uProjectionMatrix * vPosition;
+        }
+
+    </script>
+    <script id="fragment-shader-water" type="x-shader/x-fragment">
+        precision mediump float;
+
+        const int NUM_LIGHTS = 1;
+
+        varying vec2 vTextureCoord;
+        varying vec4 vPosition;
+        varying vec4 vNormal;
+        varying vec4 vLightPos[NUM_LIGHTS];
+        varying vec4 vWorldLightPos[NUM_LIGHTS];
+        varying vec4 vWorldPosition;
+        varying mat4 vNormalMatrix;
+
+        uniform sampler2D uSampler;
+        uniform sampler2D uSamplerNormal;
+        uniform vec4 uIa;
+        uniform vec4 uId[NUM_LIGHTS];
+        uniform vec4 uIs[NUM_LIGHTS];
+        uniform vec4 uKa;
+        uniform vec4 uKd;
+        uniform vec4 uKs;
+        uniform float uSpecularExponent;
+        uniform mat4 uNormalMatrix;
+        uniform bool uIsNormalMapped;
+
+        const float c1 = 1.0;
+        const float c2 = 0.0005;
+        const float c3 = 0.000003;
+
+        void main() {
+            vec3 transformedNormal = (vNormalMatrix * vNormal).xyz;
+
+            if(uIsNormalMapped) {
+                vec3 tangent;
+                vec3 t1 = cross(vNormal.xyz, vec3(0.0, 0.0, 1.0));
+                vec3 t2 = cross(vNormal.xyz, vec3(0.0, 1.0, 0.0));
+                if (length(t1) > length(t2)) {
+                    tangent = normalize(t1);
+                } else {
+                    tangent = normalize(t2);
+                }
+                vec3 n = normalize(vNormalMatrix * vNormal).xyz;
+                vec3 t = normalize((vNormalMatrix * vec4(tangent, 1.0)).xyz);
+                vec3 b = cross(n, t);
+
+                mat3 tbnMat = mat3(t, b, n);
+
+                vec4 normal = texture2D(uSamplerNormal, vTextureCoord) * 2.0 - 1.0;
+                transformedNormal = tbnMat * normal.xyz;
+            }
+
+            vec4 finalColor = vec4(0.0,0.0,0.0,1.0);
+            vec3 N = normalize(transformedNormal);
+            vec3 V = normalize((-vPosition).xyz);
+
+            vec4 textureColor = texture2D(uSampler, vTextureCoord);
+
+            for(int i=0; i < NUM_LIGHTS; i++){
+                vec3 L = normalize(vLightPos[i].xyz - vPosition.xyz);
+                vec3 R = reflect(-L, N);
+
+                float d = distance(vLightPos[i], vPosition);
+                float fAtt = min(1.0/c1 + c2 * d + c3 * pow(d, 2.0), 1.0);
+
+                finalColor += (uId[i] * textureColor * max(dot(N, L), 0.0) + uIs[i] * uKs * pow(max(dot(R, V), 0.0), uSpecularExponent));
+            }
+            gl_FragColor =  uIa * uKa + finalColor;
+            //gl_FragColor = vec4((vNormalMatrix * vNormal).xyz, 1.0);
+        }
+    </script>
+
     <script type="text/javascript" src="common/initShaders.js"></script>
     <script type="text/javascript" src="common/gl-matrix.js"></script>
 </head>
@@ -274,6 +366,7 @@
 <script type="text/javascript" src="light.js"></script>
 <script type="text/javascript" src="generator.js"></script>
 <script type="text/javascript" src="model.js"></script>
+<script type="text/javascript" src="gameobject.js"></script>
 <script type="text/javascript" src="game.js"></script>
 <script type="text/javascript" src="input.js"></script>
 

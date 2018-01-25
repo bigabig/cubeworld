@@ -10,7 +10,7 @@ main();
 
 function main() {
     var redLight = new Light();
-    redLight.setPosition({x: 5, y: 15, z: 5});
+    redLight.setPosition({x: 15, y: 15, z: 15});
     redLight.setDiffuse({r: 0.7, g: 0.7, b: 0.7, a: 1.0});
     //redLight.setSpecular({r: 1, g: 1, b: 1, a: 1.0});
     redLight.setSpecular({r: 0.4, g: 0.4, b: 0.4, a: 1.0});
@@ -34,8 +34,6 @@ function main() {
 
     lighting.Init();
 
-    let model = new Model();
-
     camera = new Camera(10);
 
     let c = new Cube([
@@ -48,11 +46,14 @@ function main() {
     c.transform.SetPositionScaleOrientation();
     objects.push(c);
 
-    var generator = new Generator(objects);
+    let n = new GameObject("textures/water.png", "textures/water.png", "textures/water_NORM.png");
+    objects.push(n);
+
+    //var generator = new Generator(objects);
     //generator.GenerateTree({x:5, y: 2, z: 5}, 0);
     //generator.GenerateTree({x:-5, y: 2, z: -5}, 1);
-    generator.GenerateTerrain(4, 30, 4);
-    objects = generator.GetObjects();
+    //generator.GenerateTerrain(4, 30, 4);
+    //objects = generator.GetObjects();
 
     requestAnimationFrame(gameLoop);
 }

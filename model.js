@@ -9,8 +9,13 @@ class Model {
         this.normals;
         this.indices;
 
+        this.vertexCount;
 
         this.InitBuffers();
+    }
+
+    GetVertexCount() {
+        return this.vertexCount;
     }
 
     InitBuffers() {
@@ -30,11 +35,13 @@ class Model {
                     0.0 + i, 0.0, 0.0 + j,
                 ]);
 
+                let t = 1.0 / size;
+
                 textureCoords = textureCoords.concat([
-                    0.0 + 1.0 / size * i, 1.0 / size - 1.0 / size * j,
-                    1.0 / size + 1.0 / size * i, 1.0 / size - 1.0 / size * j,
-                    1.0 / size + 1.0 / size * i, 1.0 - 1.0 / size * j,
-                    0.0 + 1.0 / size * i, 1.0 - 1.0 / size * j,
+                    0.0 + t * i, 1 - t - t * j,
+                    0.0 + t + t * i, 1 - t - t * j,
+                    0.0 + t + t * i, 1 - t * j,
+                    0 + t * i, 1 - t * j
                 ]);
 
                 normalCoords = normalCoords.concat([
@@ -60,6 +67,7 @@ class Model {
         const positionBuffer = gl.createBuffer();
         gl.bindBuffer(gl.ARRAY_BUFFER, positionBuffer);
         gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(vertexCoords), gl.STATIC_DRAW);
+        this.vertexCount = vertexCoords.length;
 
         const textureCoordBuffer = gl.createBuffer();
         gl.bindBuffer(gl.ARRAY_BUFFER, textureCoordBuffer);

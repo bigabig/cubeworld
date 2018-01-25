@@ -1,15 +1,17 @@
 var gl;
 
 class Shader {
-    constructor(cubemapped) {
-        this.AssignProgram(cubemapped);
+    constructor(cubemapped, temp = false) {
+        this.AssignProgram(cubemapped, temp);
         this.SaveLocations();
     }
 
-    AssignProgram(cubemapped) {
-        if(!cubemapped) {
+    AssignProgram(cubemapped, temp) {
+        if (temp) {
+            this.program = initShaders(gl, "vertex-shader-water", "fragment-shader-water");
+        } else if(!cubemapped) {
             this.program = initShaders(gl, "vertex-shader-phong", "fragment-shader-phong");
-        } else  {
+        } else {
             this.program = initShaders(gl, "vertex-shader-skybox", "fragment-shader-skybox");
         }
     }
@@ -39,6 +41,7 @@ class Shader {
                 uIa: gl.getUniformLocation(this.program, 'uIa'),
                 uId: gl.getUniformLocation(this.program, 'uId'),
                 uIs: gl.getUniformLocation(this.program, 'uIs'),
+                uTime: gl.getUniformLocation(this.program, 'uTime'),
         };
     }
 }

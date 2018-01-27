@@ -7,7 +7,7 @@ class GameObject {
         this.shader = new Shader(cubemapped, true);
         this.transform = new Transform(this.shader, {x: 0, y: 0, z: 0}, {x: 0, y: 0, z: 0});
         this.material = new Material(this.shader, texture_side, texture_top, normalmap, cubemapped, ka, kd, ks, specularExponent);
-        this.model = new Model(this.shader, 30);
+        this.model = new Model(this.shader, 2, 4);
 
         this.t = 0;
 
@@ -19,6 +19,7 @@ class GameObject {
         this.model.UpdateAttributs();
 
         // Set the uniforms
+        this.UpdateUniforms();
         this.transform.UpdateUniforms();
         this.material.UpdateUniforms();
 
@@ -26,7 +27,7 @@ class GameObject {
             this.material.ActivateNormalMap();
 
             this.material.ActivateTexture1();
-            gl.drawElements(gl.TRIANGLES, 6 * this.model.size * this.model.size, gl.UNSIGNED_SHORT, 0);
+            gl.drawElements(gl.LINE_STRIP, 6 * this.model.size * this.model.size * this.model.lod * this.model.lod, gl.UNSIGNED_SHORT, 0);
         } else {
             this.material.ActivateTexturCubemap();
             gl.drawElements(gl.TRIANGLES, 36, gl.UNSIGNED_SHORT, 0);
@@ -34,10 +35,12 @@ class GameObject {
     }
 
     Update(deltaTime) {
-        this.t = this.t + 5.0 * deltaTime;
+        this.t = this.t + 1.0 * deltaTime;
         if ( this.t > 360)
             this.t = this.t -360;
+    }
 
+    UpdateUniforms() {
         gl.uniform1f(this.shader.uniformLocations.uTime, this.t);
     }
 }

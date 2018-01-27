@@ -1,8 +1,9 @@
 class Model {
-    constructor(shader, size) {
+    constructor(shader, size, lod) {
         this.shader = shader;
 
         this.size = size;
+        this.lod = lod; // level of detail;
 
         this.positions;
         this.textures;
@@ -26,22 +27,24 @@ class Model {
         let textureCoords = [];
         let normalCoords = [];
         let indices = [];
-        for (let i = 0; i < size; i++) {
-            for (let j = 0; j < size; j++) {
+        console.log(1.0/this.lod);
+
+        for (let i = 0; i < size; i = i + 1 / this.lod) {
+            for (let j = 0; j < size; j = j + 1 / this.lod) {
                 vertexCoords = vertexCoords.concat([
-                    0.0 + i, 0.0, 1.0 + j,
-                    1.0 + i, 0.0, 1.0 + j,
-                    1.0 + i, 0.0, 0.0 + j,
+                    0.0 + i, 0.0, 1.0 / this.lod + j,
+                    1.0 / this.lod + i, 0.0, 1.0 / this.lod + j,
+                    1.0 / this.lod + i, 0.0, 0.0 + j,
                     0.0 + i, 0.0, 0.0 + j,
                 ]);
 
-                let t = 1.0 / size;
+                let t = 1.0 / (size * this.lod);
 
                 textureCoords = textureCoords.concat([
-                    0.0 + t * i, 1 - t - t * j,
-                    0.0 + t + t * i, 1 - t - t * j,
-                    0.0 + t + t * i, 1 - t * j,
-                    0 + t * i, 1 - t * j
+                    0.0 + t * i * this.lod, 1 - t - t * j * this.lod,
+                    0.0 + t + t * i * this.lod, 1 - t - t * j * this.lod,
+                    0.0 + t + t * i * this.lod, 1 - t * j * this.lod,
+                    0 + t * i * this.lod, 1 - t * j * this.lod
                 ]);
 
                 normalCoords = normalCoords.concat([
@@ -59,8 +62,8 @@ class Model {
             }
         }
 
-        // console.log(vertexCoords);
-        // console.log(textureCoords);
+        console.log(vertexCoords);
+        console.log(textureCoords);
         // console.log(normalCoords);
         // console.log(indices);
 

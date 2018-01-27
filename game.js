@@ -48,12 +48,23 @@ function main() {
 
     let n = new GameObject("textures/water.png", "textures/water.png", "textures/water_NORM.png");
     objects.push(n);
-
-    //var generator = new Generator(objects);
-    //generator.GenerateTree({x:5, y: 2, z: 5}, 0);
-    //generator.GenerateTree({x:-5, y: 2, z: -5}, 1);
-    //generator.GenerateTerrain(4, 30, 4);
-    //objects = generator.GetObjects();
+    let f = new GameObject("textures/water.png", "textures/water.png", "textures/water_NORM.png");
+    f.transform.position = {x: 2.5, y: 0, z: 2.5};
+    f.transform.SetPositionScaleOrientation();
+    objects.push(f);
+    f = new GameObject("textures/water.png", "textures/water.png", "textures/water_NORM.png");
+    f.transform.position = {x: 0, y: 0, z: 2};
+    f.transform.SetPositionScaleOrientation();
+    objects.push(f);
+    f = new GameObject("textures/water.png", "textures/water.png", "textures/water_NORM.png");
+    f.transform.position = {x: 2, y: 0, z: 0};
+    f.transform.SetPositionScaleOrientation();
+    objects.push(f);
+    // var generator = new Generator(objects);
+    // generator.GenerateTree({x:5, y: 2, z: 5}, 0);
+    // generator.GenerateTree({x:-5, y: 2, z: -5}, 1);
+    // generator.GenerateTerrain(20, 30, 20);
+    // objects = generator.GetObjects();
 
     requestAnimationFrame(gameLoop);
 }

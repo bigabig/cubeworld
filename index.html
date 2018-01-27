@@ -239,13 +239,15 @@
 
         void main() {
             // calculate positions in camera coordinates & world coordinates
-            float height = 4.0;
-            float smooth = 4.0;
+            float height = 1.0;
+            float smooth = 1.0;
             float e = 0.1;
 
-            vec3 P = vec3(aVertexPosition.x, wave(aVertexPosition.x, aVertexPosition.z, height, smooth, uTime), aVertexPosition.z);
-            vec3 B = vec3(aVertexPosition.x, wave(aVertexPosition.x, aVertexPosition.z + e, height, smooth, uTime), aVertexPosition.z + e);
-            vec3 T = vec3(aVertexPosition.x + e, wave(aVertexPosition.x + e, aVertexPosition.z, height, smooth, uTime), aVertexPosition.z);
+            vec4 p = uModelMatrix * aVertexPosition;
+
+            vec3 P = vec3(p.x, wave(p.x, p.z, height, smooth, uTime), p.z);
+            vec3 B = vec3(p.x, wave(p.x, p.z + e, height, smooth, uTime), p.z + e);
+            vec3 T = vec3(p.x + e, wave(p.x + e, p.z, height, smooth, uTime), p.z);
 
             B = B - P;
             T = T - P;
@@ -256,7 +258,7 @@
             vec3 N = cross(B, T);
             N = normalize(N);
 
-            vPosition = uViewMatrix * uModelMatrix * vec4(P, aVertexPosition.w);
+            vPosition = uViewMatrix * vec4(P, aVertexPosition.w);
 
             vWorldPosition = uModelMatrix * aVertexPosition;
             for(int i=0; i < NUM_LIGHTS; i++){

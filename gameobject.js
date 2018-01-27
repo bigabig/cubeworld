@@ -27,7 +27,7 @@ class GameObject {
             this.material.ActivateNormalMap();
 
             this.material.ActivateTexture1();
-            gl.drawElements(gl.LINE_STRIP, 6 * this.model.size * this.model.size * this.model.lod * this.model.lod, gl.UNSIGNED_SHORT, 0);
+            gl.drawElements(gl.TRIANGLES, 6 * this.model.size * this.model.size * this.model.lod * this.model.lod, gl.UNSIGNED_SHORT, 0);
         } else {
             this.material.ActivateTexturCubemap();
             gl.drawElements(gl.TRIANGLES, 36, gl.UNSIGNED_SHORT, 0);
@@ -35,7 +35,7 @@ class GameObject {
     }
 
     Update(deltaTime) {
-        this.t = this.t + 1.0 * deltaTime;
+        this.t = this.t + 2.0 * deltaTime;
         if ( this.t > 360)
             this.t = this.t -360;
     }

@@ -287,13 +287,18 @@ class Generator {
 
                 for(let y = 0; y <= ySize; y++) {
 
+
                     if(y === height) {
                         let cube = this.GetBlock(height);
-                        cube.transform.SetPositionScaleOrientation({x: x * 2, y: y * 2, z: z * 2});
+                        if(height <= 1) {
+                            cube.transform.SetPositionScaleOrientation({x: x * 2 - 1, y: 1 * 2 + 1, z: z * 2 - 1});
+                        } else {
+                            cube.transform.SetPositionScaleOrientation({x: x * 2, y: y * 2, z: z * 2});
+                        }
                         blocks.push(cube);
                     }
 
-                    if((x === 0 || z === 0 || x === xSize || z === zSize) && y < height) {
+                    if((x === 0 || z === 0 || x === xSize || z === zSize) && y < height && height > 1) {
                         let cube = this.GetBlock(height);
                         cube.transform.SetPositionScaleOrientation({x: x * 2, y: y * 2, z: z * 2});
                         blocks.push(cube);
@@ -337,8 +342,11 @@ class Generator {
 
     GetBlock(height) {
         var cube;
-        if(height <= 1) {
-            cube = new Cube("textures/water.png", "textures/water.png", "textures/water_NORM.png");
+        if(height < 1) {
+            cube = new GameObject("textures/water.png", "textures/water.png", "textures/water_NORM.png", false, {r: 0.2, g: 0.2, b: 0.5, a: 1.0}, {r: 0.7, g: 0.7, b: 0.9, a: 1.0}, {r: 0.4, g: 0.4, b: 0.8, a: 1.0}, 4)
+        } else if(height <= 1) {
+            cube = new GameObject("textures/water.png", "textures/water.png", "textures/water_NORM.png");
+            //cube = new Cube("textures/water.png", "textures/water.png", "textures/water_NORM.png");
         } else if (height <= 3) {
             cube = new Cube("textures/sand.png", "textures/sand.png", "textures/sand_NORM.png");
             //cube = new Cube("textures/sand_diffuse.jpg", "textures/sand_diffuse.jpg", "textures/sand_normal.jpg");
